@@ -8,6 +8,14 @@ const nextConfig = {
         source: "/all",
         destination: "http://localhost:8080/",
       },
+      {
+        source: "/student/add",
+        destination: "http://localhost:8080/student/add",
+      },
+      {
+        source: "/student/delete",
+        destination: "http://localhost:8080/student/delete",
+      },
     ];
   },
 };

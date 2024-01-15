@@ -40,66 +40,13 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { CircleEllipsisIcon, PlusCircleIcon } from "lucide-react";
+import { AddStudentForm } from "./add-student-form";
 
 export type Student = {
   id: number;
   name: string;
-  status: "studying" | "pass-out";
   email: string;
 };
-
-export const columns: ColumnDef<Student>[] = [
-  {
-    accessorKey: "status",
-    header: "Status",
-    cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("status")}</div>
-    ),
-  },
-  {
-    accessorKey: "_id",
-    header: "Roll No",
-    cell: ({ row }) => <div className="capitalize">{row.getValue("_id")}</div>,
-  },
-  {
-    accessorKey: "email",
-    header: "Email",
-    cell: ({ row }) => <div className="lowercase">{row.getValue("email")}</div>,
-  },
-  {
-    accessorKey: "name",
-    header: "Name",
-    cell: ({ row }) => {
-      return <div className="font-medium">{row.getValue("name")}</div>;
-    },
-  },
-  {
-    id: "actions",
-    enableHiding: false,
-    header: () => <div className="text-right">Actions</div>,
-    cell: ({ row }) => {
-      const payment = row.original;
-
-      return (
-        <div className="flex justify-end">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <CircleEllipsisIcon className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem className="text-red-500">
-                Delete Student
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      );
-    },
-  },
-];
 
 export function DataTableDemo() {
   const [sorting, setSorting] = React.useState<SortingState>([]);
@@ -110,19 +57,91 @@ export function DataTableDemo() {
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
   const [data, setData] = React.useState<Student[]>([]);
+  const [open, setOpen] = React.useState(false);
+
+  async function getData() {
+    const response = await fetch("/all", {
+      method: "GET",
+      headers: {
+        "content-type": "application/json",
+      },
+    });
+    const data = await response.json();
+    setData(data.data);
+  }
+
   React.useEffect(() => {
-    async function getData() {
-      const response = await fetch("/all", {
-        method: "GET",
-        headers: {
-          "content-type": "application/json",
-        },
-      });
-      const data = await response.json();
-      setData(data.data);
-    }
     getData();
   }, []);
+
+  const deleteStudent = async (s_id: string) => {
+    await fetch("/student/delete", {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ roll_no: s_id }),
+    }).then((resp) => {
+      if (resp.ok) {
+        getData();
+      }
+    });
+  };
+
+  const columns: ColumnDef<Student>[] = [
+    {
+      accessorKey: "roll_no",
+      header: "Roll No",
+      cell: ({ row }) => (
+        <div className="capitalize">{row.getValue("roll_no")}</div>
+      ),
+    },
+    {
+      accessorKey: "email_id",
+      header: "Email",
+      cell: ({ row }) => (
+        <div className="lowercase">{row.getValue("email_id")}</div>
+      ),
+    },
+    {
+      accessorKey: "name",
+      header: "Name",
+      cell: ({ row }) => {
+        return <div className="font-medium">{row.getValue("name")}</div>;
+      },
+    },
+    {
+      id: "actions",
+      enableHiding: false,
+      header: () => <div className="text-right">Actions</div>,
+      cell: ({ row }) => {
+        const payment = row.original;
+
+        return (
+          <div className="flex justify-end">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="h-8 w-8 p-0">
+                  <CircleEllipsisIcon className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                <DropdownMenuItem>Edit data</DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => deleteStudent(row.getValue("roll_no"))}
+                  className="text-red-500"
+                >
+                  Delete student
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        );
+      },
+    },
+  ];
 
   const table = useReactTable({
     data,
@@ -142,25 +161,35 @@ export function DataTableDemo() {
     },
   });
 
+  const onAction = ({ action }: { action: string }) => {
+    if (action === "close") {
+      setOpen(false);
+    } else if (action === "fetchData") {
+      getData();
+    }
+  };
+
   return (
     <div className="w-full">
       <div className="flex items-center justify-between py-4">
         <Input
           placeholder="Filter students..."
-          value={(table.getColumn("_id")?.getFilterValue() as string) ?? ""}
+          value={(table.getColumn("roll_no")?.getFilterValue() as string) ?? ""}
           onChange={(event) =>
-            table.getColumn("_id")?.setFilterValue(event.target.value)
+            table.getColumn("roll_no")?.setFilterValue(event.target.value)
           }
           className="max-w-sm"
         />
-        <Dialog>
+        <Dialog open={open} onOpenChange={(e) => setOpen(e)}>
           <DialogTrigger className="bg-zinc-900 flex items-center gap-1 text-white px-4 py-1 rounded-lg">
             <PlusCircleIcon className="h-5 w-5" /> New
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Add a new student</DialogTitle>
-              <Button>Add Student</Button>
+              <DialogTitle className="mb-4 text-2xl">
+                Add a new student
+              </DialogTitle>
+              <AddStudentForm onAction={onAction} />
             </DialogHeader>
           </DialogContent>
         </Dialog>
