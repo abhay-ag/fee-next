@@ -25,6 +25,7 @@ const formSchema = z.object({
     .max(10),
   name: z.string().min(3, { message: "Please enter a valid name" }),
   email_id: z.string().email(),
+  password: z.string().min(6).max(12),
 });
 
 export function AddStudentForm({
@@ -38,6 +39,7 @@ export function AddStudentForm({
       name: "",
       roll_no: "",
       email_id: "",
+      password: "",
     },
   });
 
@@ -74,7 +76,6 @@ export function AddStudentForm({
               <FormControl>
                 <Input type="number" placeholder="roll number" {...field} />
               </FormControl>
-              <FormDescription></FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -88,7 +89,6 @@ export function AddStudentForm({
               <FormControl>
                 <Input placeholder="name" {...field} />
               </FormControl>
-              <FormDescription></FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -102,7 +102,19 @@ export function AddStudentForm({
               <FormControl>
                 <Input type="email" placeholder="email" {...field} />
               </FormControl>
-              <FormDescription></FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="password"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Set a password</FormLabel>
+              <FormControl>
+                <Input type="password" placeholder="user password" {...field} />
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}

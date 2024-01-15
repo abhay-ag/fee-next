@@ -46,6 +46,7 @@ export type Student = {
   id: number;
   name: string;
   email: string;
+  password: string;
 };
 
 export function DataTableDemo() {
@@ -109,6 +110,13 @@ export function DataTableDemo() {
       header: "Name",
       cell: ({ row }) => {
         return <div className="font-medium">{row.getValue("name")}</div>;
+      },
+    },
+    {
+      accessorKey: "password",
+      header: "Password",
+      cell: ({ row }) => {
+        return <div className="font-medium">{row.getValue("password")}</div>;
       },
     },
     {

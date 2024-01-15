@@ -16,6 +16,10 @@ const nextConfig = {
         source: "/student/delete",
         destination: "http://localhost:8080/student/delete",
       },
+      {
+        source: "/user/login",
+        destination: "http://localhost:8080/login",
+      },
     ];
   },
 };
