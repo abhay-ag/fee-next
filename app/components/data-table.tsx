@@ -13,13 +13,21 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
@@ -31,43 +39,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { CircleEllipsisIcon } from "lucide-react";
-
-const data: Student[] = [
-  {
-    id: "2110990034",
-    name: "Hello World",
-    status: "studying",
-    email: "ken99@yahoo.com",
-  },
-  {
-    id: "3u1reuv4",
-    name: "Hello World",
-    status: "studying",
-    email: "Abe45@gmail.com",
-  },
-  {
-    id: "derv1ws0",
-    name: "Hello World",
-    status: "studying",
-    email: "Monserrat44@gmail.com",
-  },
-  {
-    id: "5kma53ae",
-    name: "Hello World",
-    status: "studying",
-    email: "Silas22@gmail.com",
-  },
-  {
-    id: "bhqecj4p",
-    name: "Hello World",
-    status: "studying",
-    email: "carmella@hotmail.com",
-  },
-];
+import { CircleEllipsisIcon, PlusCircleIcon } from "lucide-react";
 
 export type Student = {
-  id: string;
+  id: number;
   name: string;
   status: "studying" | "pass-out";
   email: string;
@@ -82,9 +57,9 @@ export const columns: ColumnDef<Student>[] = [
     ),
   },
   {
-    accessorKey: "id",
+    accessorKey: "_id",
     header: "Roll No",
-    cell: ({ row }) => <div className="capitalize">{row.getValue("id")}</div>,
+    cell: ({ row }) => <div className="capitalize">{row.getValue("_id")}</div>,
   },
   {
     accessorKey: "email",
@@ -134,6 +109,20 @@ export function DataTableDemo() {
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
+  const [data, setData] = React.useState<Student[]>([]);
+  React.useEffect(() => {
+    async function getData() {
+      const response = await fetch("/all", {
+        method: "GET",
+        headers: {
+          "content-type": "application/json",
+        },
+      });
+      const data = await response.json();
+      setData(data.data);
+    }
+    getData();
+  }, []);
 
   const table = useReactTable({
     data,
@@ -155,15 +144,26 @@ export function DataTableDemo() {
 
   return (
     <div className="w-full">
-      <div className="flex items-center py-4">
+      <div className="flex items-center justify-between py-4">
         <Input
           placeholder="Filter students..."
-          value={(table.getColumn("id")?.getFilterValue() as string) ?? ""}
+          value={(table.getColumn("_id")?.getFilterValue() as string) ?? ""}
           onChange={(event) =>
-            table.getColumn("id")?.setFilterValue(event.target.value)
+            table.getColumn("_id")?.setFilterValue(event.target.value)
           }
           className="max-w-sm"
         />
+        <Dialog>
+          <DialogTrigger className="bg-zinc-900 flex items-center gap-1 text-white px-4 py-1 rounded-lg">
+            <PlusCircleIcon className="h-5 w-5" /> New
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Add a new student</DialogTitle>
+              <Button>Add Student</Button>
+            </DialogHeader>
+          </DialogContent>
+        </Dialog>
       </div>
       <div className="rounded-md border">
         <Table>
