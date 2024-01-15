@@ -19,7 +19,6 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
     const id = document.querySelector<HTMLInputElement>("#roll_no")?.value;
     const password =
       document.querySelector<HTMLInputElement>("#password")?.value;
-    console.log(id, password);
     await fetch("/user/login", {
       method: "POST",
       headers: {
