@@ -28,6 +28,14 @@ const nextConfig = {
         source: "/student/get",
         destination: "http://localhost:8080/student/get",
       },
+      {
+        source: "/courses/add",
+        destination: "http://localhost:8080/courses/add",
+      },
+      {
+        source: "/courses",
+        destination: "http://localhost:8080/courses",
+      },
     ];
   },
 };

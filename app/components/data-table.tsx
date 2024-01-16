@@ -44,6 +44,7 @@ import {
 import { CircleEllipsisIcon, PlusCircleIcon } from "lucide-react";
 import { AddStudentForm } from "./student-form";
 import { access } from "fs";
+import { CourseForm } from "./course-form";
 
 export type Student = {
   id: number;
@@ -61,6 +62,7 @@ export function DataTableDemo() {
   const [rowSelection, setRowSelection] = React.useState({});
   const [data, setData] = React.useState<Student[]>([]);
   const [open, setOpen] = React.useState(false);
+  const [courseOpen, setCourseOpen] = React.useState(false);
   const [edit, setEditData] = React.useState<any>({});
 
   async function getData() {
@@ -189,6 +191,8 @@ export function DataTableDemo() {
       }, 200);
     } else if (action === "fetchData") {
       getData();
+    } else if (action === "closeCourseForm") {
+      setCourseOpen(false);
     }
   };
 
@@ -203,28 +207,48 @@ export function DataTableDemo() {
           }
           className="max-w-sm"
         />
-        <Dialog
-          open={open}
-          onOpenChange={(e) => {
-            if (!e) {
-              onAction({ action: "close" });
-            } else {
-              setOpen(e);
-            }
-          }}
-        >
-          <DialogTrigger className="bg-zinc-900 flex items-center gap-1 text-white px-4 py-1 rounded-lg">
-            <PlusCircleIcon className="h-5 w-5" /> New
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle className="mb-4 text-2xl">
-                Add a new student
-              </DialogTitle>
-              <AddStudentForm values={edit} onAction={onAction} />
-            </DialogHeader>
-          </DialogContent>
-        </Dialog>
+        <div className="flex items-center gap-2">
+          <Dialog
+            open={open}
+            onOpenChange={(e) => {
+              if (!e) {
+                onAction({ action: "close" });
+              } else {
+                setOpen(e);
+              }
+            }}
+          >
+            <DialogTrigger className="bg-zinc-900 flex items-center gap-1 text-white px-4 py-1 rounded-lg">
+              <PlusCircleIcon className="h-5 w-5" /> Student
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle className="mb-4 text-2xl">
+                  Add a new student
+                </DialogTitle>
+                <AddStudentForm values={edit} onAction={onAction} />
+              </DialogHeader>
+            </DialogContent>
+          </Dialog>
+          <Dialog
+            open={courseOpen}
+            onOpenChange={(e) => {
+              setCourseOpen(e);
+            }}
+          >
+            <DialogTrigger className="bg-zinc-900 flex items-center gap-1 text-white px-4 py-1 rounded-lg">
+              <PlusCircleIcon className="h-5 w-5" /> Course
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle className="mb-4 text-2xl">
+                  Add a new course
+                </DialogTitle>
+                <CourseForm onAction={onAction} />
+              </DialogHeader>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
       <div className="rounded-md border">
         {data.length ? (
