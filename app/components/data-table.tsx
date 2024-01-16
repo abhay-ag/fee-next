@@ -13,6 +13,8 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 
+import { LoadingOutlined } from "@ant-design/icons";
+
 import {
   Dialog,
   DialogContent,
@@ -40,7 +42,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { CircleEllipsisIcon, PlusCircleIcon } from "lucide-react";
-import { AddStudentForm } from "./add-student-form";
+import { AddStudentForm } from "./student-form";
+import { access } from "fs";
 
 export type Student = {
   id: number;
@@ -58,6 +61,7 @@ export function DataTableDemo() {
   const [rowSelection, setRowSelection] = React.useState({});
   const [data, setData] = React.useState<Student[]>([]);
   const [open, setOpen] = React.useState(false);
+  const [edit, setEditData] = React.useState<any>({});
 
   async function getData() {
     const response = await fetch("/all", {
@@ -89,19 +93,26 @@ export function DataTableDemo() {
     });
   };
 
+  const editData = async (s_id: string) => {
+    const resp = await fetch("/student/get", {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ roll_no: s_id }),
+    });
+    const data = await resp.json();
+    setEditData(data.data);
+    setOpen(true);
+  };
+
   const columns: ColumnDef<Student>[] = [
     {
       accessorKey: "roll_no",
       header: "Roll No",
       cell: ({ row }) => (
         <div className="capitalize">{row.getValue("roll_no")}</div>
-      ),
-    },
-    {
-      accessorKey: "email_id",
-      header: "Email",
-      cell: ({ row }) => (
-        <div className="lowercase">{row.getValue("email_id")}</div>
       ),
     },
     {
@@ -112,12 +123,17 @@ export function DataTableDemo() {
       },
     },
     {
+      accessorKey: "email_id",
+      header: "Email",
+      cell: ({ row }) => (
+        <div className="lowercase">{row.getValue("email_id")}</div>
+      ),
+    },
+    {
       id: "actions",
       enableHiding: false,
       header: () => <div className="text-right">Actions</div>,
       cell: ({ row }) => {
-        const payment = row.original;
-
         return (
           <div className="flex justify-end">
             <DropdownMenu>
@@ -128,7 +144,11 @@ export function DataTableDemo() {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                <DropdownMenuItem>Edit data</DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => editData(row.getValue("roll_no"))}
+                >
+                  Edit data
+                </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={() => deleteStudent(row.getValue("roll_no"))}
                   className="text-red-500"
@@ -164,6 +184,9 @@ export function DataTableDemo() {
   const onAction = ({ action }: { action: string }) => {
     if (action === "close") {
       setOpen(false);
+      setTimeout(() => {
+        setEditData({});
+      }, 200);
     } else if (action === "fetchData") {
       getData();
     }
@@ -180,7 +203,16 @@ export function DataTableDemo() {
           }
           className="max-w-sm"
         />
-        <Dialog open={open} onOpenChange={(e) => setOpen(e)}>
+        <Dialog
+          open={open}
+          onOpenChange={(e) => {
+            if (!e) {
+              onAction({ action: "close" });
+            } else {
+              setOpen(e);
+            }
+          }}
+        >
           <DialogTrigger className="bg-zinc-900 flex items-center gap-1 text-white px-4 py-1 rounded-lg">
             <PlusCircleIcon className="h-5 w-5" /> New
           </DialogTrigger>
@@ -189,57 +221,63 @@ export function DataTableDemo() {
               <DialogTitle className="mb-4 text-2xl">
                 Add a new student
               </DialogTitle>
-              <AddStudentForm onAction={onAction} />
+              <AddStudentForm values={edit} onAction={onAction} />
             </DialogHeader>
           </DialogContent>
         </Dialog>
       </div>
       <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </TableHead>
-                  );
-                })}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id}>
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
+        {data.length ? (
+          <Table>
+            <TableHeader>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => {
+                    return (
+                      <TableHead key={header.id}>
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                      </TableHead>
+                    );
+                  })}
                 </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  No results.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {table.getRowModel().rows?.length ? (
+                table.getRowModel().rows.map((row) => (
+                  <TableRow key={row.id}>
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id}>
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-24 text-center"
+                  >
+                    No results.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        ) : (
+          <div className="p-4 flex items-center justify-center">
+            <LoadingOutlined />
+          </div>
+        )}
       </div>
     </div>
   );

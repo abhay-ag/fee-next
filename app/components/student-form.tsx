@@ -25,34 +25,36 @@ const formSchema = z.object({
     .max(10),
   name: z.string().min(3, { message: "Please enter a valid name" }),
   email_id: z.string().email(),
-  password: z.string().min(6).max(12),
+  password: z.string().min(6),
 });
 
 export function AddStudentForm({
   onAction,
+  values,
 }: {
   onAction: ({ action }: { action: string }) => void;
+  values?: any;
 }) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
-      roll_no: "",
-      email_id: "",
-      password: "",
+      name: values._id ? values.name : "",
+      roll_no: values._id ? values.roll_no : "",
+      email_id: values._id ? values.email_id : "",
+      password: values._id ? values.password : "",
     },
   });
 
   const { toast } = useToast();
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    await fetch("/student/add", {
+  async function onSubmit(data: z.infer<typeof formSchema>) {
+    await fetch(`/student/${values._id ? "update" : "add"}`, {
       method: "POST",
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(values),
+      body: JSON.stringify(data),
     }).then((resp) => {
       if (resp.ok) {
         onAction({ action: "close" });
@@ -113,14 +115,19 @@ export function AddStudentForm({
             <FormItem>
               <FormLabel>Set a password</FormLabel>
               <FormControl>
-                <Input type="password" placeholder="user password" {...field} />
+                <Input
+                  disabled={values._id}
+                  type="password"
+                  placeholder="user password"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
         <Button className="w-full" type="submit">
-          Submit
+          {!values._id ? "Submit" : "Update details"}
         </Button>
       </form>
     </Form>
