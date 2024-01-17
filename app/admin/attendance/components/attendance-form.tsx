@@ -90,6 +90,8 @@ export default function StudentAttendance() {
         attendance: data.attendance,
       }),
     });
+    form.reset();
+    setValue("");
   };
 
   return (

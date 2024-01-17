@@ -1,5 +1,6 @@
 "use client";
 import { Overview } from "@/app/components/overview";
+import { attendanceState } from "@/app/states/attendanceState";
 import { courseState } from "@/app/states/coursesState";
 import { userDetails } from "@/app/states/userDetails";
 import { userState } from "@/app/states/userState";
@@ -11,7 +12,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LoadingOutlined } from "@ant-design/icons";
+import { HistoryOutlined, LoadingOutlined } from "@ant-design/icons";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useRecoilState } from "recoil";
@@ -20,6 +21,7 @@ export default function StudentComponent() {
   const [user, setUser] = useRecoilState(userState);
   const [userData, setUserData] = useRecoilState<any>(userDetails);
   const [courses, setCourses] = useRecoilState<any>(courseState);
+  const [attendance, setAttendance] = useRecoilState(attendanceState);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
@@ -51,6 +53,20 @@ export default function StudentComponent() {
         const data = await resp.json();
         setCourses(data.data);
       });
+      await fetch("/attendance/get", {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          courses: data.data.courses,
+          roll_no: data.data.roll_no,
+        }),
+      }).then(async (resp) => {
+        const data = await resp.json();
+        setAttendance(data.data);
+      });
     });
   }
 
@@ -69,10 +85,10 @@ export default function StudentComponent() {
   }, [user]);
 
   useEffect(() => {
-    if (courses.length) {
+    if (courses.length && attendance.length) {
       setLoading(false);
     }
-  }, [courses]);
+  }, [courses, attendance]);
   return (
     <>
       {loading ? (
@@ -98,13 +114,20 @@ export default function StudentComponent() {
               ))}
             </div>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-              <Card className="col-span-7">
+              <Card className="col-span-4">
                 <CardHeader>
                   <CardTitle>Overview</CardTitle>
                 </CardHeader>
                 <CardContent className="pl-2">
                   <Overview />
                 </CardContent>
+              </Card>
+              <Card className="col-span-3">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <HistoryOutlined /> Important updates
+                  </CardTitle>
+                </CardHeader>
               </Card>
             </div>
           </TabsContent>

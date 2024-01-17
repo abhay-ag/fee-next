@@ -1,14 +1,19 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from "recharts";
+import {
+  Bar,
+  BarChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 import { useRecoilState } from "recoil";
-import { userDetails } from "../states/userDetails";
 import { LoadingOutlined } from "@ant-design/icons";
 import { attendanceState } from "../states/attendanceState";
 
 export function Overview() {
-  const [student, setStudent] = useRecoilState<any>(userDetails);
   const [attendance, setAttendance] = useRecoilState(attendanceState);
   const [data, setData] = useState<any[]>([]);
 
@@ -24,31 +29,9 @@ export function Overview() {
   };
 
   useEffect(() => {
-    if (attendance.length) {
-      generateData();
-    }
-  }, [attendance]);
-
-  const getAttendance = async () => {
-    await fetch("/attendance/get", {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({
-        courses: student.courses,
-        roll_no: student.roll_no,
-      }),
-    }).then(async (resp) => {
-      const data = await resp.json();
-      setAttendance(data.data);
-    });
-  };
-
-  useEffect(() => {
-    getAttendance();
+    generateData();
   }, []);
+
   return (
     <>
       {data.length ? (
@@ -72,6 +55,7 @@ export function Overview() {
             />
             <Bar
               dataKey="percentage"
+              barSize={75}
               fill="currentColor"
               label={({ payload, x, y, width, height, value }) => (
                 <text
@@ -79,7 +63,7 @@ export function Overview() {
                   y={y + height / 2}
                   fill="#fff"
                   fontSize={14}
-                  fontWeight={300}
+                  fontWeight={500}
                   textAnchor="middle"
                   dy={-6}
                 >{`${value.toFixed(2)}`}</text>
