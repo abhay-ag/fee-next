@@ -28,6 +28,10 @@ export function CourseForm({
 }) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
+    defaultValues: {
+      c_id: "",
+      name: "",
+    },
   });
 
   const { toast } = useToast();

@@ -50,6 +50,7 @@ export type Student = {
   id: number;
   name: string;
   email: string;
+  courses: string[];
 };
 
 export function DataTableDemo() {
@@ -61,6 +62,7 @@ export function DataTableDemo() {
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
   const [data, setData] = React.useState<Student[]>([]);
+  const [courses, setCourses] = React.useState<[]>([]);
   const [open, setOpen] = React.useState(false);
   const [courseOpen, setCourseOpen] = React.useState(false);
   const [edit, setEditData] = React.useState<any>({});
@@ -74,6 +76,15 @@ export function DataTableDemo() {
     });
     const data = await response.json();
     setData(data.data);
+
+    const coursesResp = await fetch("/courses", {
+      method: "GET",
+      headers: {
+        "content-type": "application/json",
+      },
+    });
+    const resp = await coursesResp.json();
+    setCourses(resp.data);
   }
 
   React.useEffect(() => {
@@ -130,6 +141,18 @@ export function DataTableDemo() {
       cell: ({ row }) => (
         <div className="lowercase">{row.getValue("email_id")}</div>
       ),
+    },
+    {
+      accessorKey: "courses",
+      header: "Courses alloted",
+      cell: ({ row }) => {
+        const value: string[] = row.getValue("courses") as Array<string>;
+        return (
+          <div className="uppercase font-medium w-32 overflow-hidden text-ellipsis whitespace-nowrap">
+            {value.map((el) => el + " ")}
+          </div>
+        );
+      },
     },
     {
       id: "actions",
@@ -226,7 +249,11 @@ export function DataTableDemo() {
                 <DialogTitle className="mb-4 text-2xl">
                   Add a new student
                 </DialogTitle>
-                <AddStudentForm values={edit} onAction={onAction} />
+                <AddStudentForm
+                  courses={courses}
+                  values={edit}
+                  onAction={onAction}
+                />
               </DialogHeader>
             </DialogContent>
           </Dialog>
