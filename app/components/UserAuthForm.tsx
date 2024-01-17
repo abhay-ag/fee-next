@@ -7,16 +7,19 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
+import { useRecoilState } from "recoil";
+import { userState } from "../states/userState";
 
 interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {}
 
 export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
-  const [isLoading, setIsLoading] = React.useState<boolean>(false);
+  const [userId, setUserId] = useRecoilState(userState);
   const { toast } = useToast();
   const router = useRouter();
   async function onSubmit(event: React.SyntheticEvent) {
     event.preventDefault();
-    const id = document.querySelector<HTMLInputElement>("#roll_no")?.value;
+    const id = document.querySelector<HTMLInputElement>("#roll_no")
+      ?.value as string;
     const password =
       document.querySelector<HTMLInputElement>("#password")?.value;
     await fetch("/user/login", {
@@ -28,7 +31,9 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
       body: JSON.stringify({ roll_no: id, password: password }),
     }).then((resp) => {
       if (resp.ok) {
-        router.push("/u");
+        setUserId(id);
+        localStorage.setItem("roll_no", id);
+        router.push(`/u`);
       } else {
         toast({ title: "Please check your credentials" });
       }
@@ -46,7 +51,6 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
               placeholder="roll number"
               type="number"
               required
-              disabled={isLoading}
             />
             <Input
               id="password"
@@ -54,10 +58,9 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
               placeholder="password"
               type="password"
               required
-              disabled={isLoading}
             />
           </div>
-          <Button disabled={isLoading}>Login</Button>
+          <Button>Login</Button>
         </div>
       </form>
     </div>
