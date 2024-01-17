@@ -326,7 +326,7 @@ export function DataTableDemo() {
           </Table>
         ) : (
           <div className="p-4 flex items-center justify-center">
-            <LoadingOutlined />
+            <LoadingOutlined className="text-5xl" />
           </div>
         )}
       </div>

@@ -45,6 +45,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
               name="roll_no"
               placeholder="roll number"
               type="number"
+              required
               disabled={isLoading}
             />
             <Input
@@ -52,6 +53,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
               name="password"
               placeholder="password"
               type="password"
+              required
               disabled={isLoading}
             />
           </div>
