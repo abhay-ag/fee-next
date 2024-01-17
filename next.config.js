@@ -36,6 +36,10 @@ const nextConfig = {
         source: "/courses",
         destination: "http://localhost:8080/courses",
       },
+      {
+        source: "/courses/get",
+        destination: "http://localhost:8080/courses/get",
+      },
     ];
   },
 };

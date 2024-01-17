@@ -78,7 +78,7 @@ export function DataTableDemo() {
     setData(data.data);
 
     const coursesResp = await fetch("/courses", {
-      method: "GET",
+      method: "POST",
       headers: {
         "content-type": "application/json",
       },

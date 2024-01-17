@@ -1,8 +1,15 @@
 "use client";
 import { Overview } from "@/app/components/overview";
+import { courseState } from "@/app/states/coursesState";
 import { userDetails } from "@/app/states/userDetails";
 import { userState } from "@/app/states/userState";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LoadingOutlined } from "@ant-design/icons";
 import { useRouter } from "next/navigation";
@@ -12,6 +19,7 @@ import { useRecoilState } from "recoil";
 export default function StudentComponent() {
   const [user, setUser] = useRecoilState(userState);
   const [userData, setUserData] = useRecoilState<any>(userDetails);
+  const [courses, setCourses] = useRecoilState<any>(courseState);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
@@ -31,6 +39,18 @@ export default function StudentComponent() {
         router.push("/");
       }
       setUserData(data.data);
+
+      await fetch("/courses/get", {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ courses: data.data.courses }),
+      }).then(async (resp) => {
+        const data = await resp.json();
+        setCourses(data.data);
+      });
     });
   }
 
@@ -45,9 +65,14 @@ export default function StudentComponent() {
   useEffect(() => {
     if (user.length) {
       getStudentData();
-      setLoading(false);
     }
   }, [user]);
+
+  useEffect(() => {
+    if (courses.length) {
+      setLoading(false);
+    }
+  }, [courses]);
   return (
     <>
       {loading ? (
@@ -58,17 +83,19 @@ export default function StudentComponent() {
         <Tabs defaultValue="overview" className="space-y-4">
           <TabsList>
             <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="analytics">Course Content</TabsTrigger>
-            <TabsTrigger value="reports">Performance</TabsTrigger>
+            <TabsTrigger value="content">Course Content</TabsTrigger>
           </TabsList>
           <TabsContent value="overview" className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-              <Card>
-                {/* <CardHeader> */}
-                <CardTitle>ASDF</CardTitle>
-                {/* </CardHeader> */}
-                {/* <CardContent></CardContent> */}
-              </Card>
+              {courses.map((el: any) => (
+                <Card key={el.c_id}>
+                  <CardHeader className="">
+                    <CardTitle>{el.c_id}</CardTitle>
+                    <CardDescription>{el.name}</CardDescription>
+                  </CardHeader>
+                  <CardContent className=""></CardContent>
+                </Card>
+              ))}
             </div>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
               <Card className="col-span-7">
