@@ -48,6 +48,7 @@ export function Overview() {
             <YAxis
               stroke="#888888"
               fontSize={14}
+              domain={[0, 100]}
               tickLine={true}
               fontWeight={600}
               axisLine={true}

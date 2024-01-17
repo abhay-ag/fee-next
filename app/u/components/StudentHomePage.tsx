@@ -99,19 +99,37 @@ export default function StudentComponent() {
         <Tabs defaultValue="overview" className="space-y-4">
           <TabsList>
             <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="content">Course Content</TabsTrigger>
           </TabsList>
           <TabsContent value="overview" className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-              {courses.map((el: any) => (
-                <Card key={el.c_id}>
-                  <CardHeader className="">
-                    <CardTitle>{el.c_id}</CardTitle>
-                    <CardDescription>{el.name}</CardDescription>
-                  </CardHeader>
-                  <CardContent className=""></CardContent>
-                </Card>
-              ))}
+              {attendance.map((el: any) => {
+                const percentage = (el.attended / el.delivered) * 100;
+                const canSkip = Math.floor(el.attended / 0.75 - el.delivered);
+                const toAttend = Math.ceil(
+                  (el.attended - 0.75 * el.delivered) / -0.25
+                );
+                return (
+                  <Card key={el.c_id}>
+                    <CardHeader className="p-6 pb-3 space-y-0">
+                      <CardTitle>{el.c_id}</CardTitle>
+                      <CardDescription>{el.name}</CardDescription>
+                    </CardHeader>
+                    <CardContent className="p-6 pt-0">
+                      <div className="flex items-start justify-between">
+                        <span className="flex text-sm flex-col">
+                          <b>Attended: {el.attended}</b>
+                          <b>Delivered: {el.delivered}</b>
+                        </span>
+                        <b className="text-sm">
+                          {percentage < 75
+                            ? `Need to attend: ${toAttend}`
+                            : `Can skip:  ${canSkip}`}
+                        </b>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
             </div>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
               <Card className="col-span-4">
