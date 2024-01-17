@@ -48,6 +48,10 @@ const nextConfig = {
         source: "/attendance/save",
         destination: "http://localhost:8080/attendance/save",
       },
+      {
+        source: "/attendance/get",
+        destination: "http://localhost:8080/attendance/get",
+      },
     ];
   },
 };
