@@ -13,7 +13,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 
-import { LoadingOutlined } from "@ant-design/icons";
+import { DashboardOutlined, LoadingOutlined } from "@ant-design/icons";
 
 import {
   Dialog,
@@ -24,7 +24,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -45,6 +45,8 @@ import { CircleEllipsisIcon, PlusCircleIcon } from "lucide-react";
 import { AddStudentForm } from "./student-form";
 import { access } from "fs";
 import { CourseForm } from "./course-form";
+import { cn } from "@/lib/utils";
+import { useRouter } from "next/navigation";
 
 export type Student = {
   id: number;
@@ -78,7 +80,7 @@ export function DataTableDemo() {
     setData(data.data);
 
     const coursesResp = await fetch("/courses", {
-      method: "POST",
+      method: "GET",
       headers: {
         "content-type": "application/json",
       },
@@ -219,6 +221,8 @@ export function DataTableDemo() {
     }
   };
 
+  const router = useRouter();
+
   return (
     <div className="w-full">
       <div className="flex items-center justify-between py-4">
@@ -231,6 +235,18 @@ export function DataTableDemo() {
           className="max-w-sm"
         />
         <div className="flex items-center gap-2">
+          <Button
+            className={cn(
+              buttonVariants({ variant: "destructive" }),
+              "px-4 py-1 rounded-lg text-base h-fit"
+            )}
+            onClick={() => {
+              router.push("/admin/attendance");
+            }}
+          >
+            Mark attendance
+          </Button>
+
           <Dialog
             open={open}
             onOpenChange={(e) => {
