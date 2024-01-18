@@ -65,7 +65,7 @@ export function CourseForm({
             <FormItem>
               <FormLabel>Course ID</FormLabel>
               <FormControl>
-                <Input placeholder="id" {...field} />
+                <Input  placeholder="id" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

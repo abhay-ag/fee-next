@@ -39,7 +39,7 @@ export function UserNav({ admin }: { admin?: boolean }) {
   }, [details]);
   return (
     <>
-      {details.roll_no || admin ? (
+      {(details && details.roll_no) || admin ? (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-8 w-8 rounded-full">

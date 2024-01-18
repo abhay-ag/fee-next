@@ -236,6 +236,7 @@ export function DataTableDemo() {
         />
         <div className="flex items-center gap-2">
           <Button
+            disabled={courses.length === 0}
             className={cn(
               buttonVariants({ variant: "destructive" }),
               "px-4 py-1 rounded-lg text-base h-fit"
@@ -257,7 +258,10 @@ export function DataTableDemo() {
               }
             }}
           >
-            <DialogTrigger className="bg-zinc-900 flex items-center gap-1 text-white px-4 py-1 rounded-lg">
+            <DialogTrigger
+              disabled={courses.length === 0}
+              className="bg-zinc-900 flex items-center gap-1 text-white px-4 py-1 rounded-lg"
+            >
               <PlusCircleIcon className="h-5 w-5" /> Student
             </DialogTrigger>
             <DialogContent>
