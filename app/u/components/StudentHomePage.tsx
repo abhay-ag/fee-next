@@ -12,7 +12,12 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { HistoryOutlined, LoadingOutlined } from "@ant-design/icons";
+import {
+  CiCircleOutlined,
+  HistoryOutlined,
+  InfoCircleOutlined,
+  LoadingOutlined,
+} from "@ant-design/icons";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useRecoilState } from "recoil";
@@ -23,9 +28,20 @@ export default function StudentComponent() {
   const [courses, setCourses] = useRecoilState<any>(courseState);
   const [attendance, setAttendance] = useRecoilState(attendanceState);
   const [loading, setLoading] = useState(true);
+  const [notification, setNotification] = useState([]);
   const router = useRouter();
 
   async function getStudentData() {
+    await fetch("notification", {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "content-type": "application/json",
+      },
+    }).then(async (resp) => {
+      const response = await resp.json();
+      setNotification(response.data);
+    });
     await fetch("student/get", {
       method: "POST",
       headers: {
@@ -97,9 +113,9 @@ export default function StudentComponent() {
         </div>
       ) : (
         <Tabs defaultValue="overview" className="space-y-4">
-          <TabsList>
+          {/* <TabsList>
             <TabsTrigger value="overview">Overview</TabsTrigger>
-          </TabsList>
+          </TabsList> */}
           <TabsContent value="overview" className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
               {attendance.map((el: any) => {
@@ -146,6 +162,21 @@ export default function StudentComponent() {
                     <HistoryOutlined /> Important updates
                   </CardTitle>
                 </CardHeader>
+                <CardContent>
+                  {notification.map((el: any) => (
+                    <div className="flex gap-2 items-center border-b py-2 text-base">
+                      <>
+                        <InfoCircleOutlined />
+                        <span>
+                          <b>{el.title}</b> -{" "}
+                          <span className="w-4 overflow-hidden whitespace-nowrap text-ellipsis">
+                            {el.description}
+                          </span>
+                        </span>
+                      </>
+                    </div>
+                  ))}
+                </CardContent>
               </Card>
             </div>
           </TabsContent>

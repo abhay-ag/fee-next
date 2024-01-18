@@ -47,6 +47,7 @@ import { access } from "fs";
 import { CourseForm } from "./course-form";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
+import { NotificationForm } from "./notification-form";
 
 export type Student = {
   id: number;
@@ -218,10 +219,14 @@ export function DataTableDemo() {
       getData();
     } else if (action === "closeCourseForm") {
       setCourseOpen(false);
+    } else if (action === "closeNotificationForm") {
+      setNotification(false);
     }
   };
 
   const router = useRouter();
+
+  const [notification, setNotification] = React.useState(false);
 
   return (
     <div className="w-full">
@@ -247,7 +252,24 @@ export function DataTableDemo() {
           >
             Mark attendance
           </Button>
-
+          <Dialog
+            open={notification}
+            onOpenChange={(e) => {
+              setNotification(e);
+            }}
+          >
+            <DialogTrigger className="bg-zinc-900 flex items-center gap-1 text-white px-4 py-1 rounded-lg">
+              <PlusCircleIcon className="h-5 w-5" /> Notification
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle className="mb-4 text-2xl">
+                  Push a new notification
+                </DialogTitle>
+                <NotificationForm onAction={onAction} />
+              </DialogHeader>
+            </DialogContent>
+          </Dialog>
           <Dialog
             open={open}
             onOpenChange={(e) => {

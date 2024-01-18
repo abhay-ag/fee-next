@@ -52,6 +52,10 @@ const nextConfig = {
         source: "/attendance/get",
         destination: "http://localhost:8080/attendance/get",
       },
+      {
+        source: "/notification",
+        destination: "http://localhost:8080/notification",
+      },
     ];
   },
 };
